@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+  <title>Dialog Therapy A.I.</title>
+  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
+  <link rel='stylesheet'
+    href='https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css'>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.slim.min.js"></script>
+<script
+  src='https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js'></script>
+
+<body>
+  <div class="chat">
+    <div class="chat-title">
+      <h1>Dr. Angela Ingrid</h1>
+      <h2>A.I. Clinic</h2>
+      <figure class="avatar">
+        <img src="./avatar.png" />
+      </figure>
+    </div>
+    <div class="messages">
+      <div class="messages-content"></div>
+    </div>
+    <div class="message-box">
+      <textarea type="text" class="message-input" placeholder="Type message..."></textarea>
+      <button type="submit" class="message-submit">Send</button>
+    </div>
+
+  </div>
+  <div class="bg"></div>
+  <!-- partial -->
+</body>
+
+</html>
+<script>
+    let postData = async (url = "", data = {}, wantObject = true) => {
+      // Default options are marked with *
+      const response = await fetch(url, {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        redirect: "follow",
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify(data),
+      });
+      if (wantObject) {
+        return response.json(); // parses JSON response into native JavaScript objects
+      }
+      return response;
+    }
+  var chat_history = "";
+
+  var ONE_SECOND = 1000;
+
+  var startTime = Date.now();
+  var totalTime = 0;
+
+  document.addEventListener('visibilitychange', function logData() {
+    if (document.visibilityState === 'hidden') {
+      postData('https://forum.viik.me/use', {totalTime: totalTime.toString()})
+    }
+  });
+
+  setInterval(function () {
+    if (!document.hidden) {
+      startTime = Date.now();
+      totalTime += ONE_SECOND;
+    }
+  }, ONE_SECOND);
+
+  var $messages = $('.messages-content'),
+    d, h, m,
+    i = 0;
+  (function ($) {
+    $(window).on("load", function () {
+      $messages.mCustomScrollbar({
+        setHeight: "63vh",
+        autoScrollOnFocus: "textarea",
+        updateOnContentResize: true,
+        callbacks: {
+          onUpdate: function () {
+            $messages.mCustomScrollbar('scrollTo', 'bottom', {
+              scrollInertia: 10,
+              timeout: 0
+            });
+          }
+        }
+      });
+      setTimeout(function () {
+        fakeMessage();
+      }, 100);
+    });
+  })(jQuery);
+
+  function updateScrollbar() {
+    $messages.mCustomScrollbar("update").mCustomScrollbar('scrollTo', 'bottom', {
+      scrollInertia: 10,
+      timeout: 0
+    });
+  }
+
+  function setDate() {
+    d = new Date()
+    if (m != d.getMinutes()) {
+      m = d.getMinutes();
+      $('<div class="timestamp">' + d.getHours() + ':' + m + '</div>').appendTo($('.message:last'));
+    }
+  }
+
+  function insertMessage() {
+    msg = $('.message-input').val();
+    if ($.trim(msg) == '') {
+      return false;
+    }
+    $('<div class="message message-personal">' + msg + '</div>').appendTo($('.mCSB_container')).addClass('new');
+    setDate();
+    $('.message-input').val(null);
+    updateScrollbar();
+
+    setTimeout(function () {
+      $('<div class="message loading new"><figure class="avatar"><img src="./avatar.png" /></figure><span></span></div>').appendTo($('.mCSB_container'));
+    }, 500 + (Math.random() * 9) * 100);
+    postData("https://forum.viik.me/chat", {msg: msg, history: chat_history}).then(i => {
+      chat_history = i.History;
+      fakeMessage(true, i.Answer ?? "Could you please tell me more?");
+    }).catch(i => {
+      fakeMessage(true, "I apologize. I'm not in my office right now. If that's okay, let's meet in one hour.");
+    })
+  }
+
+  $('.message-submit').click(function () {
+    insertMessage();
+  });
+
+  $(window).on('keydown', function (e) {
+    if (e.which == 13) {
+      insertMessage();
+      return false;
+    }
+  })
+
+  var Fake = [
+    `Hi there, I\'m Dr. Angela Ingrid.\nIt sounds like you're going through some difficult experiences and would like to find a way to make positive changes in your life. Can you tell me more about what you are struggling with and what changes you would like to make?`
+  ]
+
+  function fakeMessage(x = false, data = "") {
+    if ($('.message-input').val() != '') {
+      return false;
+    }
+    $('<div class="message loading new"><figure class="avatar"><img src="./avatar.png" /></figure><span></span></div>').appendTo($('.mCSB_container'));
+    updateScrollbar();
+    if (x) {
+      $('.message.loading').remove();
+      $('<div class="message new"><figure class="avatar"><img src="./avatar.png" /></figure>' + data + '</div>').appendTo($('.mCSB_container')).addClass('new');
+      setDate();
+      updateScrollbar();
+      i++;
+    } else {
+      setTimeout(function () {
+        $('.message.loading').remove();
+        $('<div class="message new"><figure class="avatar"><img src="./avatar.png" /></figure>' + Fake[i] + '</div>').appendTo($('.mCSB_container')).addClass('new');
+        setDate();
+        updateScrollbar();
+        i++;
+      }, 500 + (Math.random() * 9) * 100);
+    }
+
+  }
+
+</script>
+
+</html>
