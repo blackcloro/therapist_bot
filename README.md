@@ -34,8 +34,8 @@ Chat Bot: Maybe that could be at the heart of our work together? Rather than foc
 
 Please generalize from this example, and perform a therapy session with me based on what you've learned.
 
-Current session has been about the following, end of session is marked with [end of session]\e:
-[SESSION]
+Current session has been about the following, end of session is marked with [end of session]\e:\
+[SESSION]\
 [end of session]\e
 
 Our conversation will take the form: 
